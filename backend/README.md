@@ -23,7 +23,8 @@ API REST para gerenciamento de tarefas (todos), construída com **Next.js** (mod
 |------------------|-----------------------------|
 | Framework        | Next.js 16.1.6 (API-only)   |
 | ORM              | Prisma 7.x                  |
-| Banco de dados   | MySQL                       |
+| Driver de banco  | @prisma/adapter-mariadb + mariadb |
+| Banco de dados   | MySQL 8 / MariaDB           |
 | Validação        | Zod 4.x                     |
 | Linguagem        | TypeScript 5                |
 | Gerenciador      | pnpm                        |
@@ -46,7 +47,10 @@ backend/
 ├── prisma.config.ts                  # Configuração da CLI do Prisma
 ├── tsconfig.json
 ├── prisma/
-│   └── schema.prisma                 # Schema do banco de dados
+│   ├── schema.prisma                 # Schema do banco de dados
+│   └── migrations/                   # Histórico de migrations SQL geradas
+│       └── 20260313073013_init_todo_table/
+│           └── migration.sql         # CREATE TABLE Todo
 └── src/
     ├── app/
     │   └── api/
@@ -83,7 +87,17 @@ Requisição HTTP
  Service                       src/services/todoService.ts
       │  operações puras no banco, sem lógica HTTP
       ▼
- Prisma ORM → MySQL
+ Prisma ORM → PrismaMariaDb adapter → MySQL/MariaDB
+```
+
+### Singleton do Prisma Client
+
+O cliente Prisma é instanciado uma única vez usando o padrão global (`globalThis`) para evitar múltiplas instâncias durante o hot-reload do Next.js em desenvolvimento. O adapter `PrismaMariaDb` é inicializado com a `DATABASE_URL`:
+
+```typescript
+// src/lib/prisma.ts
+const adapter = new PrismaMariaDb(process.env.DATABASE_URL!);
+export const prisma = globalForPrisma.prisma ?? new PrismaClient({ adapter });
 ```
 
 ### CORS
@@ -177,13 +191,12 @@ FRONTEND_URL="http://localhost:3000"
 # 1. Instalar dependências
 pnpm install
 
-# 2. Configurar variáveis de ambiente
-cp .env.example .env
-# edite o .env com suas credenciais do MySQL
+# 2. Verificar variáveis de ambiente (arquivo .env já incluso no repositório)
+# DATABASE_URL="mysql://root:root@localhost:3306/todo_db"
+# FRONTEND_URL="http://localhost:3000"
 
 # 3. Executar as migrations e gerar o Prisma Client
-pnpm prisma migrate dev --name init
-pnpm prisma generate
+pnpm prisma migrate dev
 
 # 4. Iniciar o servidor de desenvolvimento
 pnpm dev

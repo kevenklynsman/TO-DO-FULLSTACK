@@ -54,7 +54,7 @@ O **backend** é um servidor Next.js que expõe apenas API Routes (REST). Ele se
 | Linguagem | TypeScript | ^5 |
 | Backend framework | Next.js (App Router, API Routes) | 16.1.6 |
 | ORM | Prisma | 7.5.0 |
-| Driver de banco | mysql2 | ^3.19.1 |
+| Driver de banco | @prisma/adapter-mariadb + mariadb | ^7.5.0 / ^3.5.2 |
 | Validação (backend) | Zod | ^4.3.6 |
 | Testes (backend) | Vitest | ^4.1.0 |
 | Frontend framework | Next.js (App Router) | 16.1.6 |
@@ -97,9 +97,9 @@ docker compose version
 ```
 TO-DO-FULLSTACK/
 ├── .env                        # Variáveis de ambiente raiz (compartilhadas)
-├── .vscode/
-│   └── settings.json           # Configuração do VSCode (extensão Prisma)
+├── .npmrc                      # Configuração pnpm (approve-builds=true)
 ├── package.json                # Scripts e configuração do monorepo raiz
+├── pnpm-lock.yaml              # Lockfile unificado do monorepo
 ├── pnpm-workspace.yaml         # Declaração dos workspaces pnpm
 ├── README.md                   # Esta documentação
 │
@@ -112,7 +112,8 @@ TO-DO-FULLSTACK/
 │   ├── tsconfig.json           # Configuração TypeScript
 │   ├── package.json
 │   ├── prisma/
-│   │   └── schema.prisma       # Schema do banco de dados
+│   │   ├── schema.prisma       # Schema do banco de dados
+│   │   └── migrations/         # Histórico de migrations SQL
 │   └── src/
 │       ├── app/api/todos/
 │       │   ├── route.ts        # GET /api/todos, POST /api/todos
@@ -183,7 +184,7 @@ Isso instalará:
 - `next` — framework do servidor de API
 - `prisma` — ORM e CLI para migrations
 - `@prisma/client` — cliente gerado do Prisma
-- `mysql2` — driver do banco MySQL
+- `@prisma/adapter-mariadb` + `mariadb` — driver adapter para MariaDB/MySQL
 - `zod` — validação dos dados de entrada
 - `vitest` — framework de testes
 - `typescript`, `@types/node` — suporte TypeScript
@@ -339,8 +340,8 @@ Base URL: `http://localhost:3001/api`
 - `200 OK` — sucesso em leituras e atualizações
 - `201 Created` — tarefa criada com sucesso
 - `204 No Content` — tarefa deletada com sucesso
-- `400 Bad Request` — dados inválidos (falha na validação Zod)
 - `404 Not Found` — tarefa não encontrada
+- `422 Unprocessable Entity` — dados inválidos (falha na validação Zod)
 
 ---
 
@@ -374,11 +375,13 @@ pnpm --filter backend exec prisma migrate dev --name <nome-da-migration>
 
 ### Gerenciamento do monorepo
 - **pnpm workspaces** — gerencia `frontend/` e `backend/` como pacotes independentes dentro de um único repositório, compartilhando `node_modules` na raiz quando possível.
+- **`.npmrc`** (`approve-builds=true`) — permite que pacotes nativos como `@prisma/engines` e `sharp` executem scripts de build pós-instalação sem prompts interativos.
+- **`pnpm.onlyBuiltDependencies`** no `package.json` raiz — lista explícita dos pacotes autorizados a executar scripts de instalação (`@prisma/engines`, `prisma`, `sharp`, `unrs-resolver`), aumentando a segurança do ambiente.
 
 ### Backend
 - **Next.js 16 (App Router)** — usado exclusivamente como servidor HTTP para as API Routes. Não renderiza páginas.
-- **Prisma 7** — ORM type-safe com migrations, client gerado e Prisma Studio.
-- **mysql2** — driver de banco de dados para conectar ao MySQL.
+- **Prisma 7** — ORM type-safe com migrations, client gerado e Prisma Studio. Configurado via `prisma.config.ts` com driver adapter.
+- **@prisma/adapter-mariadb + mariadb** — driver adapter nativo para MariaDB/MySQL, usado no singleton `PrismaMariaDb` em `lib/prisma.ts`.
 - **Zod 4** — validação e tipagem dos dados recebidos nas requisições.
 - **Vitest** — framework de testes unitários compatível com TypeScript e ESM.
 

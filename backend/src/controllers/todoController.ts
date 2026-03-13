@@ -33,7 +33,7 @@ export async function updateTodo(req: NextRequest, id: number) {
   }
   const existing = await todoService.getTodoById(id);
   if (!existing) {
-    return NextResponse.json({ error: "Todo not found" }, { status: 404 });
+    return NextResponse.json({ error: "To-do not found" }, { status: 404 });
   }
   const todo = await todoService.updateTodo(id, parsed.data);
   return NextResponse.json(todo);

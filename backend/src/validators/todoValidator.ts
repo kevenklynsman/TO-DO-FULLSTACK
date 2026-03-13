@@ -1,11 +1,11 @@
 import { z } from "zod";
 
 export const createTodoSchema = z.object({
-  title: z.string().min(1, "Title is required"),
+  title: z.string().min(1, "Titulo é obrigatório"),
 });
 
 export const updateTodoSchema = z.object({
-  title: z.string().min(1, "Title is required").optional(),
+  title: z.string().min(1, "Titulo é obrigatório").optional(),
   completed: z.boolean().optional(),
 });
 

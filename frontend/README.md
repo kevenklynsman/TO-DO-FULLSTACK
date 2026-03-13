@@ -136,7 +136,7 @@ TodoForm (client)
 | Rota             | Arquivo                          | Tipo   | Descrição                              |
 |------------------|----------------------------------|--------|----------------------------------------|
 | `/`              | `src/app/page.tsx`               | Server | Redireciona para `/todos`              |
-| `/todos`         | `src/app/todos/page.tsx`         | Server | Lista todas as tarefas                 |
+| `/todos`         | `src/app/todos/page.tsx`         | Server | Lista todas as tarefas + botão "Nova tarefa" (`Plus` icon) |
 | `/todos/create`  | `src/app/todos/create/page.tsx`  | Client | Formulário de criação de nova tarefa   |
 
 ---
