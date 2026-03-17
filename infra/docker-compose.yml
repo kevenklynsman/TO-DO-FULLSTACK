@@ -3,7 +3,7 @@ version: "3"
 services:
 
   mysql:
-    image: docker.io/library/mysql:8
+    image: docker.io/library/mariadb:lts
     container_name: todo_mysql
     restart: always
     environment:
