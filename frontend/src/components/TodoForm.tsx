@@ -34,7 +34,7 @@ export default function TodoForm({ onSuccess }: Props) {
     <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-3">
       <div className="flex flex-col gap-1">
         <label htmlFor="title" className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
-          Task title
+          Titulo da tarefa 
         </label>
         <input
           id="title"
@@ -50,9 +50,9 @@ export default function TodoForm({ onSuccess }: Props) {
       <button
         type="submit"
         disabled={isSubmitting}
-        className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-blue-700 disabled:opacity-50"
+        className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-blue-700 disabled:opacity-50 cursor-pointer"
       >
-        {isSubmitting ? "Saving…" : "Add task"}
+        {isSubmitting ? "Salvando…" : "Adicionar tarefa"}
       </button>
     </form>
   );

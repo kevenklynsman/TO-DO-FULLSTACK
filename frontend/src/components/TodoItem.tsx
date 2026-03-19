@@ -25,14 +25,14 @@ export default function TodoItem({ todo }: Props) {
             : "text-zinc-800 dark:text-zinc-100"
         }`}
       >
-        {todo.title}
+        {todo.title.charAt(0).toUpperCase() + todo.title.slice(1)}
       </span>
 
       <EditTodoDialog todo={todo} />
 
       <button
         onClick={() => deleteTodo(todo.id)}
-        className="text-zinc-400 transition-colors hover:text-red-500"
+        className="cursor-pointer text-zinc-400 transition-colors hover:text-red-500"
         aria-label="Excluir tarefa"
       >
         <Trash2 size={16} />

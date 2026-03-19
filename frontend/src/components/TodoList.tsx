@@ -17,11 +17,11 @@ export default function TodoList() {
   if (todos.length === 0) {
     return (
       <p className="text-sm text-zinc-400">
-        No tasks yet.{" "}
-        <a href="/todos/create" className="text-blue-600 underline">
-          Create one
-        </a>
-        .
+      Nenhuma tarefa ainda.{" "}
+      <a href="/todos/create" className="text-blue-600 underline">
+        Crie uma
+      </a>
+      .
       </p>
     );
   }
