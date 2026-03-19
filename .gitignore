@@ -3,6 +3,7 @@ node_modules/
 
 # pnpm
 .pnpm-debug.log*
+package-lock.json
 
 # debug
 npm-debug.log*

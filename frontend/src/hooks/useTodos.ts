@@ -31,10 +31,15 @@ export function useTodoActions() {
     await mutate(TODOS_KEY);
   }
 
+  async function editTodo(id: number, title: string) {
+    await api.updateTodo(id, { title });
+    await mutate(TODOS_KEY);
+  }
+
   async function deleteTodo(id: number) {
     await api.deleteTodo(id);
     await mutate(TODOS_KEY);
   }
 
-  return { createTodo, toggleTodo, deleteTodo };
+  return { createTodo, toggleTodo, editTodo, deleteTodo };
 }

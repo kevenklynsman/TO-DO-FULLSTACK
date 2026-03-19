@@ -3,6 +3,7 @@
 import { Trash2 } from "lucide-react";
 import type { Todo } from "@/types/todo";
 import { useTodoActions } from "@/hooks/useTodos";
+import EditTodoDialog from "@/components/EditTodoDialog";
 
 type Props = { todo: Todo };
 
@@ -19,15 +20,20 @@ export default function TodoItem({ todo }: Props) {
       />
       <span
         className={`flex-1 text-sm ${
-          todo.completed ? "text-zinc-400 line-through" : "text-zinc-800 dark:text-zinc-100"
+          todo.completed
+            ? "text-zinc-400 line-through"
+            : "text-zinc-800 dark:text-zinc-100"
         }`}
       >
         {todo.title}
       </span>
+
+      <EditTodoDialog todo={todo} />
+
       <button
         onClick={() => deleteTodo(todo.id)}
         className="text-zinc-400 transition-colors hover:text-red-500"
-        aria-label="Delete todo"
+        aria-label="Excluir tarefa"
       >
         <Trash2 size={16} />
       </button>
