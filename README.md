@@ -37,7 +37,7 @@ Aplicação fullstack de lista de tarefas (To-Do) em arquitetura monorepo, com b
 │                                     │                       │
 │                                     ▼                       │
 │                              infra/ (Docker)                │
-│                              MySQL 8 — port: 3306           │
+│                              MariaDB LTS — port: 3306          │
 │                              Adminer — port: 8080           │
 └─────────────────────────────────────────────────────────────┘
 ```
@@ -59,14 +59,15 @@ O **backend** é um servidor Next.js que expõe apenas API Routes (REST). Ele se
 | Testes (backend) | Vitest | ^4.1.0 |
 | Frontend framework | Next.js (App Router) | 16.1.6 |
 | UI | React + react-dom | 19.2.3 |
-| Estilização | TailwindCSS | ^4 |
+| Estilização | TailwindCSS + tw-animate-css | ^4 |
+| Componentes UI | shadcn/ui (radix-ui) | ^4.0.8 / ^1.4.3 |
 | Ícones | lucide-react | ^0.577.0 |
 | Data fetching | SWR | ^2.4.1 |
 | Formulários | react-hook-form | ^7.71.2 |
 | Resolvers de validação | @hookform/resolvers | ^5.2.2 |
 | Validação (frontend) | Zod | ^4.3.6 |
-| Utilitários CSS | class-variance-authority, tailwind-merge | latest |
-| Banco de dados | MySQL | 8 (Docker) |
+| Utilitários CSS | class-variance-authority, tailwind-merge, clsx | latest |
+| Banco de dados | MySQL / MariaDB | lts (Docker) |
 | Admin de banco | Adminer | latest (Docker) |
 | Linting | ESLint 9 + eslint-config-next | 16.1.6 |
 
@@ -128,6 +129,7 @@ TO-DO-FULLSTACK/
 │           └── todoValidator.ts # Schemas de validação Zod
 │
 ├── frontend/                   # App Next.js — Interface do usuário
+│   ├── components.json         # Configuração do shadcn/ui
 │   ├── eslint.config.mjs
 │   ├── next.config.ts
 │   ├── next-env.d.ts
@@ -137,18 +139,25 @@ TO-DO-FULLSTACK/
 │   ├── public/
 │   └── src/
 │       ├── app/
-│       │   ├── globals.css     # Estilos globais + variáveis CSS
-│       │   ├── layout.tsx      # Layout raiz (fontes Geist)
+│       │   ├── globals.css     # Design system CSS (oklch, dark mode, shadcn tokens)
+│       │   ├── layout.tsx      # Layout raiz (fontes Geist + Inter)
 │       │   ├── page.tsx        # Redireciona "/" para "/todos"
 │       │   └── todos/
 │       │       ├── page.tsx           # Listagem de tarefas
 │       │       └── create/page.tsx    # Criação de tarefa
 │       ├── components/
-│       │   ├── TodoForm.tsx    # Formulário (react-hook-form + zod)
-│       │   ├── TodoItem.tsx    # Item individual (toggle + delete)
-│       │   └── TodoList.tsx    # Lista com SWR
+│       │   ├── EditTodoDialog.tsx  # Dialog de edição de título (Radix UI)
+│       │   ├── TodoForm.tsx        # Formulário (react-hook-form + zod)
+│       │   ├── TodoItem.tsx        # Item individual (toggle + edit + delete)
+│       │   ├── TodoList.tsx        # Lista com SWR
+│       │   └── ui/                 # Componentes base do shadcn/ui
+│       │       ├── button.tsx      # Botão com variantes CVA
+│       │       ├── dialog.tsx      # Dialog Radix UI
+│       │       └── skeleton.tsx    # Skeleton de carregamento
 │       ├── hooks/
 │       │   └── useTodos.ts     # Hooks SWR: useTodos, useTodo, useTodoActions
+│       ├── lib/
+│       │   └── utils.ts        # Utilitário cn() (clsx + tailwind-merge)
 │       ├── services/
 │       │   └── api.ts          # Wrapper fetch para todas as chamadas à API
 │       └── types/
@@ -192,12 +201,13 @@ Isso instalará:
 
 **Frontend** (`frontend/package.json`):
 - `next`, `react`, `react-dom` — framework de UI
-- `tailwindcss`, `@tailwindcss/postcss` — estilização utility-first
+- `tailwindcss`, `@tailwindcss/postcss`, `tw-animate-css` — estilização utility-first com animações
+- `radix-ui`, `shadcn` — sistema de componentes acessíveis (Dialog, Slot, etc.)
 - `lucide-react` — biblioteca de ícones
 - `swr` — data fetching com cache e revalidação
 - `react-hook-form`, `@hookform/resolvers` — gerenciamento de formulários
 - `zod` — validação dos formulários
-- `class-variance-authority`, `tailwind-merge` — utilitários de classes CSS
+- `class-variance-authority`, `tailwind-merge`, `clsx` — utilitários de classes CSS
 - `typescript`, `@types/node`, `@types/react`, `@types/react-dom` — suporte TypeScript
 - `eslint`, `eslint-config-next` — linting
 
@@ -221,14 +231,14 @@ FRONTEND_URL="http://localhost:3000"
 
 ### 4. Subir o banco de dados com Docker
 
-Na pasta `infra/`, há um `docker-compose.yml` que sobe o **MySQL 8** e o **Adminer** (interface web de administração do banco):
+Na pasta `infra/`, há um `docker-compose.yml` que sobe o **MariaDB LTS** e o **Adminer** (interface web de administração do banco):
 
 ```bash
 docker compose -f infra/docker-compose.yml up -d
 ```
 
 Serviços iniciados:
-- `todo_mysql` — MySQL 8 na porta `3306`
+- `todo_mysql` — MariaDB LTS na porta `3306`
   - Usuário: `root`
   - Senha: `root`
   - Banco: `todo_db`
@@ -347,7 +357,7 @@ Base URL: `http://localhost:3001/api`
 
 ## Banco de Dados
 
-- **SGBD:** MySQL 8
+- **SGBD:** MariaDB LTS (compatível com MySQL)
 - **Porta:** 3306
 - **Banco:** `todo_db`
 - **Usuário:** `root` / **Senha:** `root`
@@ -388,14 +398,16 @@ pnpm --filter backend exec prisma migrate dev --name <nome-da-migration>
 ### Frontend
 - **Next.js 16 (App Router)** — renderiza páginas React com roteamento baseado em sistema de arquivos, Server e Client Components.
 - **React 19** — biblioteca de UI com o novo modelo de renderização.
-- **TailwindCSS 4** — estilização utility-first configurada via PostCSS (`@tailwindcss/postcss`).
+- **TailwindCSS 4** — estilização utility-first configurada via PostCSS (`@tailwindcss/postcss`). Inclui `tw-animate-css` para animações CSS.
+- **shadcn/ui** — sistema de componentes de baixo acoplamento baseado em `radix-ui`. Os componentes (`Button`, `Dialog`, `Skeleton`) vivem em `src/components/ui/` e são totalmente customizáveis.
+- **radix-ui** — primitivos de UI acessíveis (Dialog, Slot) que servem de base para os componentes shadcn.
 - **SWR 2** — data fetching com cache, revalidação automática e mutação otimista.
 - **react-hook-form 7** — gerenciamento de formulários performático e sem re-renders desnecessários.
 - **Zod 4** + **@hookform/resolvers** — integração entre react-hook-form e Zod para validação de formulários.
 - **lucide-react** — ícones SVG como componentes React.
-- **class-variance-authority** + **tailwind-merge** — utilitários para composição segura de classes Tailwind.
+- **class-variance-authority** + **tailwind-merge** + **clsx** — utilitários para composição segura de classes Tailwind via a função `cn()`.
 
 ### Infraestrutura
 - **Docker Compose** — orquestra os containers de desenvolvimento.
-- **MySQL 8** — banco de dados relacional.
+- **MariaDB LTS** — banco de dados relacional compatível com MySQL.
 - **Adminer** — interface web para inspecionar e gerenciar o banco de dados.

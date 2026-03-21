@@ -92,11 +92,20 @@ Requisição HTTP
 
 ### Singleton do Prisma Client
 
-O cliente Prisma é instanciado uma única vez usando o padrão global (`globalThis`) para evitar múltiplas instâncias durante o hot-reload do Next.js em desenvolvimento. O adapter `PrismaMariaDb` é inicializado com a `DATABASE_URL`:
+O cliente Prisma é instanciado uma única vez usando o padrão global (`globalThis`) para evitar múltiplas instâncias durante o hot-reload do Next.js em desenvolvimento. A `DATABASE_URL` é parseada manualmente para extrair cada parâmetro de conexão do adapter `PrismaMariaDb`:
 
 ```typescript
 // src/lib/prisma.ts
-const adapter = new PrismaMariaDb(process.env.DATABASE_URL!);
+const { hostname, port, username, password, pathname } = new URL(
+  process.env.DATABASE_URL!
+);
+const adapter = new PrismaMariaDb({
+  host: hostname,
+  port: parseInt(port || "3306"),
+  user: username,
+  password,
+  database: pathname.slice(1),
+});
 export const prisma = globalForPrisma.prisma ?? new PrismaClient({ adapter });
 ```
 
