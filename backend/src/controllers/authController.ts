@@ -33,9 +33,16 @@ export async function loginController(req: Request) {
     try {
         const { email, senha } = parsed.data;
         const token = await authService.login(email, senha);
-        return NextResponse.json({ token });
+        const response = NextResponse.json({ ok: true });
+        response.cookies.set("token", token, {
+            httpOnly: true,
+            path: "/",
+            maxAge: 60 * 60 * 24,
+        });
+        return response;
     } catch {
         return NextResponse.json({ error: "credenciais inválidas" }, { status: 401 });
     }
 
 }
+
