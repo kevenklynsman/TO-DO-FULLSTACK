@@ -7,11 +7,11 @@ export default function TodoList() {
   const { todos, isLoading, error } = useTodos();
 
   if (isLoading) {
-    return <p className="text-sm text-zinc-500">Loading tasks…</p>;
+    return <p className="text-sm text-zinc-500">Carregando tarefas…</p>;
   }
 
   if (error) {
-    return <p className="text-sm text-red-500">Failed to load tasks.</p>;
+    return <p className="text-sm text-red-500">Falha ao carregar tarefas.</p>;
   }
 
   if (todos.length === 0) {
