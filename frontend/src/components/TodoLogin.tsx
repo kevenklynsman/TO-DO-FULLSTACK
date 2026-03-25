@@ -51,7 +51,7 @@ export default function TodoLogin() {
   }
 
   return (
-    <Card className="w-full max-w-sm">
+    <Card className="w-full max-w-sm mx-auto">
       <CardHeader>
         <CardTitle>Login na sua conta</CardTitle>
         <CardDescription>
@@ -63,7 +63,7 @@ export default function TodoLogin() {
           </Button>
         </CardAction> */}
       </CardHeader>
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={handleSubmit} className="w-full flex flex-col gap-y-4">
         <CardContent>
           <div className="flex flex-col gap-6">
             {error && (
@@ -107,7 +107,7 @@ export default function TodoLogin() {
             </div>
           </div>
         </CardContent>
-        <CardFooter className="flex-col gap-2">
+        <CardFooter className="flex-col gap-y-4">
           <Button
             type="submit"
             className="w-full"
