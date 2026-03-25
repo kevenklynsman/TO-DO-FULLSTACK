@@ -57,11 +57,11 @@ export default function TodoLogin() {
         <CardDescription>
           Digite seu email para fazer login
         </CardDescription>
-        <CardAction>
+        {/* <CardAction>
           <Button variant="link" onClick={() => router.push('/register')}>
             Criar conta
           </Button>
-        </CardAction>
+        </CardAction> */}
       </CardHeader>
       <form onSubmit={handleSubmit}>
         <CardContent>
