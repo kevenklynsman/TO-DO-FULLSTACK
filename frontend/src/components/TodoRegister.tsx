@@ -3,7 +3,6 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/hooks/useAuth'
-import { GoogleLogin, CredentialResponse } from '@react-oauth/google'
 import { Button } from "@/components/ui/button"
 import {
   Card,
@@ -17,31 +16,16 @@ import {
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 
-export default function TodoLogin() {
+export default function TodoRegister() {
   const router = useRouter()
-  const { isAuthenticated, loading: authLoading, login, googleLogin, user } = useAuth()
+  const { isAuthenticated, loading: authLoading, register } = useAuth()
 
+  const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
 
-  // Carregar último email usado do localStorage
-  useEffect(() => {
-    const savedEmail = localStorage.getItem('lastUsedEmail')
-    if (savedEmail) {
-      setEmail(savedEmail)
-    }
-  }, [])
-
-  // Salvar email no localStorage quando autenticar
-  useEffect(() => {
-    if (user?.email) {
-      localStorage.setItem('lastUsedEmail', user.email)
-    }
-  }, [user])
-
-  // Redirecionar se já está autenticado
   useEffect(() => {
     if (isAuthenticated && !authLoading) {
       router.push('/todos')
@@ -55,44 +39,25 @@ export default function TodoLogin() {
       setError('')
       setLoading(true)
 
-      await login(email, password)
-      localStorage.setItem('lastUsedEmail', email)
+      await register(name, email, password)
     } catch (err) {
-      const message = err instanceof Error ? err.message : 'Erro ao fazer login'
+      const message = err instanceof Error ? err.message : 'Erro ao criar conta'
       setError(message)
     } finally {
       setLoading(false)
     }
-  }
-
-  const handleGoogleSuccess = async (response: CredentialResponse) => {
-    if (!response.credential) return
-    try {
-      setError('')
-      setLoading(true)
-      await googleLogin(response.credential)
-    } catch (err) {
-      const message = err instanceof Error ? err.message : 'Erro ao fazer login com Google'
-      setError(message)
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  const handleGoogleError = () => {
-    setError('Erro ao conectar com Google. Tente novamente.')
   }
 
   return (
     <Card className="w-full max-w-sm mx-auto">
       <CardHeader>
-        <CardTitle>Login na sua conta</CardTitle>
+        <CardTitle>Criar sua conta</CardTitle>
         <CardDescription>
-          Digite seu email para fazer login
+          Preencha os dados para se cadastrar
         </CardDescription>
         <CardAction>
-          <Button variant="link" className='cursor-pointer' onClick={() => router.push('/register')}>
-            Criar conta
+          <Button variant="link" onClick={() => router.push('/todos')}>
+            Já tenho conta
           </Button>
         </CardAction>
       </CardHeader>
@@ -106,6 +71,18 @@ export default function TodoLogin() {
             )}
 
             <div className="grid gap-2">
+              <Label htmlFor="name">Nome</Label>
+              <Input
+                id="name"
+                type="text"
+                placeholder="Seu nome"
+                required
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                disabled={loading}
+              />
+            </div>
+            <div className="grid gap-2">
               <Label htmlFor="email">Email</Label>
               <Input
                 id="email"
@@ -118,15 +95,7 @@ export default function TodoLogin() {
               />
             </div>
             <div className="grid gap-2">
-              <div className="flex items-center">
-                <Label htmlFor="password">Senha</Label>
-                <a
-                  href="#"
-                  className="ml-auto inline-block text-sm underline-offset-4 hover:underline"
-                >
-                  Esqueceu a senha?
-                </a>
-              </div>
+              <Label htmlFor="password">Senha</Label>
               <Input
                 id="password"
                 type="password"
@@ -146,17 +115,8 @@ export default function TodoLogin() {
             className="w-full"
             disabled={loading}
           >
-            {loading ? 'Entrando...' : 'Entrar'}
+            {loading ? 'Criando conta...' : 'Criar conta'}
           </Button>
-          <div className="w-full flex justify-center">
-            <GoogleLogin
-              onSuccess={handleGoogleSuccess}
-              onError={handleGoogleError}
-              size="large"
-              width="100%"
-              text="signin_with"
-            />
-          </div>
         </CardFooter>
       </form>
     </Card>

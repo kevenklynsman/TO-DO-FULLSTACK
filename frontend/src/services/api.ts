@@ -53,5 +53,10 @@ export const api = {
     request<{ id: number; name: string; email: string }>("/auth/me"),
   logout: () =>
     request<{ ok: true }>("/auth/logout", { method: "POST" }),
+  googleLogin: (credential: string) =>
+    request<{ ok: true }>("/auth/google", {
+      method: "POST",
+      body: JSON.stringify({ credential }),
+    }),
 };
 

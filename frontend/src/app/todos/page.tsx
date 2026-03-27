@@ -4,11 +4,11 @@ import { useAuth } from "@/hooks/useAuth";
 import Link from "next/link";
 import TodoList from "@/components/TodoList";
 import TodoLogin from "@/components/TodoLogin";
-import { Plus, LogOut, User2 } from "lucide-react";
+import { Plus } from "lucide-react";
 import { PopoverDemo } from "@/components/TodoUserNav";
 
 export default function TodosPage() {
-  const { isAuthenticated, loading, user } = useAuth();
+  const { isAuthenticated, loading,  } = useAuth();
 
   if (loading) {
     return (

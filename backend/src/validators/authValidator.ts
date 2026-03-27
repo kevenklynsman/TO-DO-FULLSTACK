@@ -11,3 +11,7 @@ export const registerSchema = z.object({
     senha: z.string().min(5, "A senha deve conter no mínimo 5 caracteres"),
 })
 
+export const googleLoginSchema = z.object({
+    credential: z.string().min(1, "Credential do Google é obrigatória"),
+})
+

@@ -22,6 +22,8 @@ export interface AuthContextType {
   isAuthenticated: boolean;
   loading: boolean;
   login: (email: string, password: string) => Promise<void>;
+  googleLogin: (credential: string) => Promise<void>;
+  register: (name: string, email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
   checkAuth: () => Promise<void>;
 }
@@ -75,6 +77,41 @@ export function AuthProvider({ children }: PropsWithChildren) {
         } catch (error) {
           const message =
             error instanceof Error ? error.message : "Erro ao fazer login";
+          throw new Error(message);
+        } finally {
+          setLoading(false);
+        }
+      },
+      [checkAuth],
+    ),
+    googleLogin: useCallback(
+      async (credential: string) => {
+        try {
+          setLoading(true);
+          await api.googleLogin(credential);
+          await checkAuth();
+        } catch (error) {
+          const message =
+            error instanceof Error
+              ? error.message
+              : "Erro ao fazer login com Google";
+          throw new Error(message);
+        } finally {
+          setLoading(false);
+        }
+      },
+      [checkAuth],
+    ),
+    register: useCallback(
+      async (name: string, email: string, password: string) => {
+        try {
+          setLoading(true);
+          await api.register(name, email, password);
+          await api.login(email, password);
+          await checkAuth();
+        } catch (error) {
+          const message =
+            error instanceof Error ? error.message : "Erro ao criar conta";
           throw new Error(message);
         } finally {
           setLoading(false);

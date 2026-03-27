@@ -13,6 +13,7 @@
     "@prisma/adapter-mariadb": "^7.5.0",
     "@prisma/client": "^7.5.0",
     "bcryptjs": "^3.0.3",
+    "google-auth-library": "^10.6.2",
     "jsonwebtoken": "^9.0.3",
     "mariadb": "^3.5.2",
     "next": "16.1.6",

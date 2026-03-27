@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { loginSchema, registerSchema } from "@/validators/authValidator";
+import { loginSchema, registerSchema, googleLoginSchema } from "@/validators/authValidator";
 import * as authService from "@/services/authService";
 
 export async function registerController(req: Request) {
@@ -40,9 +40,35 @@ export async function loginController(req: Request) {
             maxAge: 60 * 60 * 24,
         });
         return response;
-    } catch {
-        return NextResponse.json({ error: "credenciais inválidas" }, { status: 401 });
+    } catch (error) {
+        const message = error instanceof Error ? error.message : "credenciais inválidas";
+        return NextResponse.json({ error: message }, { status: 401 });
     }
 
+}
+
+export async function googleLoginController(req: Request) {
+    const body = await req.json();
+
+    const parsed = googleLoginSchema.safeParse(body);
+    if (!parsed.success) {
+        return NextResponse.json({ error: "Credential inválida" }, { status: 422 });
+    }
+
+    try {
+        const { credential } = parsed.data;
+        const token = await authService.googleLogin(credential);
+
+        const response = NextResponse.json({ ok: true });
+        response.cookies.set("token", token, {
+            httpOnly: true,
+            path: "/",
+            maxAge: 60 * 60 * 24,
+        });
+        return response;
+    } catch (error) {
+        const message = error instanceof Error ? error.message : "Erro ao autenticar com Google";
+        return NextResponse.json({ error: message }, { status: 401 });
+    }
 }
 
