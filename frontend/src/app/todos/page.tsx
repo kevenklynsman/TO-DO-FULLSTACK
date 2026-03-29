@@ -9,7 +9,6 @@ import Link from "next/link";
 }
 import TodoLogin from "@/components/TodoLogin";
 import TodoTableList from "@/components/TodoTableList";
-import { Plus } from "lucide-react";
 import { TodoUserNav } from "@/components/TodoUserNav";
 
 export default function TodosPage() {
