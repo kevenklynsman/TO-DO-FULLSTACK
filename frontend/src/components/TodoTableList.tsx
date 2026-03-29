@@ -9,7 +9,6 @@ import {
   SortingState,
   ColumnFiltersState,
   VisibilityState,
-  RowSelectionState,
   flexRender,
   getCoreRowModel,
   getFilteredRowModel,
@@ -57,7 +56,6 @@ export default function TodosPage() {
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
   const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({});
-  const [rowSelection, setRowSelection] = React.useState<RowSelectionState>({});
   const [combinedFilter, setCombinedFilter] = React.useState<string>("all");
 
   // Estados para diálogos
@@ -67,33 +65,28 @@ export default function TodosPage() {
 
   // Definição das colunas da tabela
   const columns = React.useMemo<ColumnDef<Todo>[]>(() => [
-    // Coluna de seleção de linha
-    {
-      id: "select",
-      header: ({ table }) => (
-        <Checkbox
-          checked={table.getIsAllPageRowsSelected()}
-          onChange={table.getToggleAllPageRowsSelectedHandler()}
-        />
-      ),
-      cell: ({ row }) => (
-        <Checkbox
-          checked={row.getIsSelected()}
-          onChange={row.getToggleSelectedHandler()}
-        />
-      ),
-    },
     // Coluna do título da tarefa
     {
       accessorKey: "title",
       header: "Título",
-      cell: info => info.getValue<string>(),
+      cell: info => (
+        <span className={info.row.original.completed ? "line-through text-zinc-400" : ""}>
+          {info.getValue<string>()}
+        </span>
+      ),
     },
     // Coluna da data de criação
     {
       accessorKey: "createdAt",
       header: "Data de Criação",
-      cell: info => info.getValue<string>(),
+      cell: info => {
+      const date = new Date(info.getValue<string>());
+      return date.toLocaleDateString("pt-BR", {
+        day: "2-digit",
+        month: "2-digit",
+        year: "numeric",
+      });
+      },
     },
     // Coluna de concluído (checkbox)
     {
@@ -103,7 +96,7 @@ export default function TodosPage() {
         <Checkbox
           checked={info.getValue<boolean>()}
           disabled={updatingIds.has(info.row.original.id)}
-          onChange={async () => {
+          onCheckedChange={async () => {
             const todo = info.row.original;
             try {
               setUpdatingIds(prev => new Set(prev).add(todo.id));
@@ -168,12 +161,10 @@ export default function TodosPage() {
       sorting,
       columnFilters,
       columnVisibility,
-      rowSelection,
     },
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
     onColumnVisibilityChange: setColumnVisibility,
-    onRowSelectionChange: setRowSelection,
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     getSortedRowModel: getSortedRowModel(),
@@ -203,7 +194,6 @@ export default function TodosPage() {
   const totalCount = todos.length;
   const openCount = todos.filter(t => !t.completed).length;
   const doneCount = todos.filter(t => t.completed).length;
-  const selectedCount = Object.keys(rowSelection).length;
 
   return (
     <div className="p-4 space-y-4">
@@ -279,9 +269,8 @@ export default function TodosPage() {
             </DropdownMenu>
           </div>
 
-          {/* Estatísticas de seleção e totais */}
+          {/* Estatísticas de totais */}
           <div className="text-sm text-muted-foreground flex space-x-4">
-            <p><strong>{selectedCount}</strong> linhas selecionadas</p>
             <p><strong>{openCount}</strong> em aberto</p>
             <p><strong>{doneCount}</strong> concluídas</p>
             <p><strong>{totalCount}</strong> total</p>
@@ -315,7 +304,7 @@ export default function TodosPage() {
               <TableBody>
                 {table.getRowModel().rows.length ? (
                   table.getRowModel().rows.map(row => (
-                    <TableRow key={row.id} data-state={row.getIsSelected() && "selected"}>
+                    <TableRow key={row.id}>
                       {row.getVisibleCells().map(cell => (
                         <TableCell key={cell.id}>
                           {flexRender(cell.column.columnDef.cell, cell.getContext())}

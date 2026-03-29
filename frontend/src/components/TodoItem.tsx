@@ -3,7 +3,7 @@
 import { Trash2 } from "lucide-react";
 import type { Todo } from "@/types/todo";
 import { useTodoActions } from "@/hooks/useTodos";
-import EditTodoDialog from "@/components/EditTodoDialog";
+import EditTodoDialog from "@/components/TodoEditDialog";
 
 type Props = { todo: Todo };
 

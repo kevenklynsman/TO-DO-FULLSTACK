@@ -8,7 +8,7 @@ import {
 import { useAuth } from "@/hooks/useAuth"
 import { LogOut, User2Icon } from "lucide-react"
 
-export function PopoverDemo() {
+export function TodoUserNav() {
     const { user, logout } = useAuth();
   return (
     <Popover>

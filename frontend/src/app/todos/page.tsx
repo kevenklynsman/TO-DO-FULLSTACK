@@ -2,13 +2,18 @@
 
 import { useAuth } from "@/hooks/useAuth";
 import Link from "next/link";
-import TodoList from "@/components/TodoList";
+{
+  /* 
+        {import TodoList from "@/components/TodoList";}
+        */
+}
 import TodoLogin from "@/components/TodoLogin";
+import TodoTableList from "@/components/TodoTableList";
 import { Plus } from "lucide-react";
-import { PopoverDemo } from "@/components/TodoUserNav";
+import { TodoUserNav } from "@/components/TodoUserNav";
 
 export default function TodosPage() {
-  const { isAuthenticated, loading,  } = useAuth();
+  const { isAuthenticated, loading } = useAuth();
 
   if (loading) {
     return (
@@ -38,21 +43,13 @@ export default function TodosPage() {
         </div>
 
         <div className="flex items-center gap-2">
-          <PopoverDemo />
+          <TodoUserNav />
         </div>
       </nav>
-      <div className="mb-6 flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <Link
-            href="/todos/create"
-            className="flex cursor-pointer items-center gap-1.5 rounded-lg bg-blue-600 px-3 py-2 text-sm font-medium text-white transition-colors hover:bg-blue-700"
-          >
-            <Plus size={16} />
-            Nova tarefa
-          </Link>
-        </div>
-      </div>
-      <TodoList />
+     
+
+      {/* <TodoList /> */}
+      <TodoTableList />
     </main>
   );
 }
