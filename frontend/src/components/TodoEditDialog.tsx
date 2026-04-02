@@ -84,7 +84,7 @@ export default function EditTodoDialog({ todo, open: controlledOpen, onOpenChang
           <DialogClose asChild>
             <Button
               variant="outline"
-              className="bg-red-500 text-white hover:bg-red-600 hover:text-white cursor-pointer border-0"
+              className="cursor-pointer "
             >
               Cancelar
             </Button>

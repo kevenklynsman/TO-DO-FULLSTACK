@@ -1,12 +1,6 @@
 "use client";
 
 import { useAuth } from "@/hooks/useAuth";
-import Link from "next/link";
-{
-  /* 
-        {import TodoList from "@/components/TodoList";}
-        */
-}
 import TodoLogin from "@/components/TodoLogin";
 import TodoTableList from "@/components/TodoTableList";
 import { TodoUserNav } from "@/components/TodoUserNav";
@@ -47,7 +41,6 @@ export default function TodosPage() {
       </nav>
      
 
-      {/* <TodoList /> */}
       <TodoTableList />
     </main>
   );
