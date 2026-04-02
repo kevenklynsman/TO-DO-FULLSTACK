@@ -11,7 +11,6 @@ import {
   flexRender,
   getCoreRowModel,
   getFilteredRowModel,
-  getPaginationRowModel,
   getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table";
@@ -60,8 +59,19 @@ import TodoEditDialog from "@/components/TodoEditDialog";
 import TodoForm from "@/components/TodoForm";
 
 export default function TodosPage() {
+  const PAGE_SIZE = 15;
+  const [page, setPage] = React.useState(1);
+
   // Consumir dados da API
-  const { todos, isLoading, error } = useTodos();
+  const {
+    todos,
+    total,
+    totalPages,
+    openCount,
+    doneCount,
+    isLoading,
+    error,
+  } = useTodos(page, PAGE_SIZE);
   const { toggleTodo, deleteTodo } = useTodoActions();
 
   // Estados de controle do TanStack Table
@@ -213,8 +223,13 @@ export default function TodosPage() {
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     getSortedRowModel: getSortedRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
   });
+
+  React.useEffect(() => {
+    if (page > totalPages) {
+      setPage(totalPages);
+    }
+  }, [page, totalPages]);
 
   // Efeito para aplicar o filtro/sorting combinado
   React.useEffect(() => {
@@ -236,9 +251,7 @@ export default function TodosPage() {
   }, [combinedFilter, table]);
 
   // Contagens de tarefas para estatísticas
-  const totalCount = todos.length;
-  const openCount = todos.filter((t) => !t.completed).length;
-  const doneCount = todos.filter((t) => t.completed).length;
+  const totalCount = total;
 
   return (
     <div className="p-4 space-y-4">
@@ -391,23 +404,28 @@ export default function TodosPage() {
           </div>
 
           {/* Paginação */}
-          <div className="flex items-center justify-end space-x-2 py-4">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => table.previousPage()}
-              disabled={!table.getCanPreviousPage()}
-            >
-              Anterior
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => table.nextPage()}
-              disabled={!table.getCanNextPage()}
-            >
-              Próximo
-            </Button>
+          <div className="flex items-center justify-between space-x-2 py-4">
+            <p className="text-sm text-muted-foreground">
+              Página {page} de {Math.max(totalPages, 1)} • {PAGE_SIZE} itens por página
+            </p>
+            <div className="flex items-center space-x-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setPage((prev) => Math.max(1, prev - 1))}
+                disabled={page <= 1}
+              >
+                Anterior
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setPage((prev) => Math.min(totalPages, prev + 1))}
+                disabled={page >= totalPages}
+              >
+                Próximo
+              </Button>
+            </div>
           </div>
 
           {/* Diálogo de edição */}

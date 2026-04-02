@@ -1,5 +1,15 @@
 import type { Todo } from "@/types/todo";
 
+export type PaginatedTodosResponse = {
+  todos: Todo[];
+  page: number;
+  limit: number;
+  total: number;
+  totalPages: number;
+  openCount: number;
+  doneCount: number;
+};
+
 const BASE_URL =
   process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3001/api";
 
@@ -25,7 +35,8 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
 }
 
 export const api = {
-  getTodos: () => request<Todo[]>("/todos"),
+  getTodos: (page: number, limit: number) =>
+    request<PaginatedTodosResponse>(`/todos?page=${page}&limit=${limit}`),
   getTodo: (id: number) => request<Todo>(`/todos/${id}`),
   createTodo: (title: string) =>
     request<Todo>("/todos", {

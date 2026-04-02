@@ -2,9 +2,13 @@ import { NextRequest, NextResponse } from "next/server";
 import * as todoService from "@/services/todoService";
 import { createTodoSchema, updateTodoSchema } from "@/validators/todoValidator";
 
-export async function listTodos() {
-  const todos = await todoService.getAllTodos();
-  return NextResponse.json(todos);
+export async function listTodos(req: NextRequest) {
+  const { searchParams } = new URL(req.url);
+  const page = Number(searchParams.get("page") ?? "1");
+  const limit = Number(searchParams.get("limit") ?? "15");
+
+  const result = await todoService.getPaginatedTodos(page, limit);
+  return NextResponse.json(result);
 }
 
 export async function getTodo(id: number) {

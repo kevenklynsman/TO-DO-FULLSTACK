@@ -6,9 +6,23 @@ import type { Todo } from "@/types/todo";
 
 const TODOS_KEY = "/todos";
 
-export function useTodos() {
-  const { data, error, isLoading } = useSWR<Todo[]>(TODOS_KEY, api.getTodos);
-  return { todos: data ?? [], error, isLoading };
+export function useTodos(page: number, limit: number) {
+  const { data, error, isLoading } = useSWR(
+    [TODOS_KEY, page, limit],
+    ([, currentPage, currentLimit]) => api.getTodos(currentPage, currentLimit),
+  );
+
+  return {
+    todos: data?.todos ?? [],
+    page: data?.page ?? page,
+    limit: data?.limit ?? limit,
+    total: data?.total ?? 0,
+    totalPages: data?.totalPages ?? 1,
+    openCount: data?.openCount ?? 0,
+    doneCount: data?.doneCount ?? 0,
+    error,
+    isLoading,
+  };
 }
 
 export function useTodo(id: number) {
@@ -20,25 +34,28 @@ export function useTodo(id: number) {
 }
 
 export function useTodoActions() {
+  const revalidateTodos = () =>
+    mutate((key) => Array.isArray(key) && key[0] === TODOS_KEY);
+
   async function createTodo(title: string) {
     const todo = await api.createTodo(title);
-    await mutate(TODOS_KEY);
+    await revalidateTodos();
     return todo;
   }
 
   async function toggleTodo(todo: Todo) {
     await api.updateTodo(todo.id, { completed: !todo.completed });
-    await mutate(TODOS_KEY);
+    await revalidateTodos();
   }
 
   async function editTodo(id: number, title: string) {
     await api.updateTodo(id, { title });
-    await mutate(TODOS_KEY);
+    await revalidateTodos();
   }
 
   async function deleteTodo(id: number) {
     await api.deleteTodo(id);
-    await mutate(TODOS_KEY);
+    await revalidateTodos();
   }
 
   return { createTodo, toggleTodo, editTodo, deleteTodo };
