@@ -113,20 +113,32 @@ TO-DO-FULLSTACK/
 │   ├── tsconfig.json           # Configuração TypeScript
 │   ├── package.json
 │   ├── prisma/
-│   │   ├── schema.prisma       # Schema do banco de dados
-│   │   └── migrations/         # Histórico de migrations SQL
+│   │   ├── schema.prisma       # Schema do banco (modelos Todo + User)
+│   │   └── migrations/         # Histórico de migrations SQL geradas
 │   └── src/
-│       ├── app/api/todos/
-│       │   ├── route.ts        # GET /api/todos, POST /api/todos
-│       │   └── [id]/route.ts   # GET, PUT, DELETE /api/todos/:id
+│       ├── app/
+│       │   └── api/
+│       │       ├── auth/
+│       │       │   ├── login/route.ts    # POST /api/auth/login
+│       │       │   ├── register/route.ts # POST /api/auth/register
+│       │       │   ├── logout/route.ts   # POST /api/auth/logout
+│       │       │   ├── me/route.ts       # GET  /api/auth/me
+│       │       │   └── google/route.ts   # POST /api/auth/google
+│       │       └── todos/
+│       │           ├── route.ts          # GET /api/todos, POST /api/todos
+│       │           └── [id]/route.ts     # GET, PUT, DELETE /api/todos/:id
 │       ├── controllers/
-│       │   └── todoController.ts
+│       │   ├── authController.ts         # Handlers de autenticação
+│       │   └── todoController.ts         # Handlers de todos com paginação
 │       ├── lib/
-│       │   └── prisma.ts       # Singleton do cliente Prisma
+│       │   └── prisma.ts                 # Singleton do cliente Prisma (MariaDB adapter)
+│       ├── proxy.ts                      # Proxy de configuração de ambiente
 │       ├── services/
-│       │   └── todoService.ts  # Operações no banco via Prisma
+│       │   ├── authService.ts            # Lógica de registro, login e Google OAuth
+│       │   └── todoService.ts            # CRUD + paginação de todos via Prisma
 │       └── validators/
-│           └── todoValidator.ts # Schemas de validação Zod
+│           ├── authValidator.ts          # Schemas Zod para auth
+│           └── todoValidator.ts          # Schemas Zod para todos
 │
 ├── frontend/                   # App Next.js — Interface do usuário
 │   ├── components.json         # Configuração do shadcn/ui
@@ -139,32 +151,51 @@ TO-DO-FULLSTACK/
 │   ├── public/
 │   └── src/
 │       ├── app/
-│       │   ├── globals.css     # Design system CSS (oklch, dark mode, shadcn tokens)
-│       │   ├── layout.tsx      # Layout raiz (fontes Geist + Inter)
-│       │   ├── page.tsx        # Redireciona "/" para "/todos"
+│       │   ├── globals.css              # Design system CSS (oklch, dark mode, shadcn tokens)
+│       │   ├── layout.tsx               # Layout raiz (Providers + Toaster + fontes)
+│       │   ├── page.tsx                 # / → redireciona para /todos
+│       │   ├── register/
+│       │   │   └── page.tsx             # /register → tela de criação de conta
 │       │   └── todos/
-│       │       ├── page.tsx           # Listagem de tarefas
-│       │       └── create/page.tsx    # Criação de tarefa
+│       │       ├── page.tsx             # /todos → guarda auth + TodoTableList
+│       │       └── create/
+│       │           └── page.tsx         # /todos/create → formulário de criação
 │       ├── components/
-│       │   ├── EditTodoDialog.tsx  # Dialog de edição de título (Radix UI)
-│       │   ├── TodoForm.tsx        # Formulário (react-hook-form + zod)
-│       │   ├── TodoItem.tsx        # Item individual (toggle + edit + delete)
-│       │   ├── TodoList.tsx        # Lista com SWR
-│       │   └── ui/                 # Componentes base do shadcn/ui
-│       │       ├── button.tsx      # Botão com variantes CVA
-│       │       ├── dialog.tsx      # Dialog Radix UI
-│       │       └── skeleton.tsx    # Skeleton de carregamento
+│       │   ├── Providers.tsx            # GoogleOAuthProvider + AuthProvider
+│       │   ├── TodoEditDialog.tsx       # Dialog de edição do título (controlado/não-controlado)
+│       │   ├── TodoForm.tsx             # Formulário de criação (react-hook-form + zod)
+│       │   ├── TodoLogin.tsx            # Tela de login (email/senha + Google OAuth)
+│       │   ├── TodoRegister.tsx         # Tela de registro de conta
+│       │   ├── TodoTableList.tsx        # Tabela principal (TanStack Table + paginação server-side)
+│       │   ├── TodoUserNav.tsx          # Popover do usuário autenticado + logout
+│       │   └── ui/                      # 57 componentes base do shadcn/ui
+│       │       ├── alert-dialog.tsx     # Dialog de confirmação destrutiva
+│       │       ├── button.tsx           # Botão com variantes CVA
+│       │       ├── checkbox.tsx         # Checkbox acessível (Radix UI)
+│       │       ├── dialog.tsx           # Dialog Radix UI
+│       │       ├── dropdown-menu.tsx    # Menu dropdown (Radix UI)
+│       │       ├── input.tsx            # Campo de texto
+│       │       ├── popover.tsx          # Popover Radix UI
+│       │       ├── skeleton.tsx         # Skeleton de carregamento
+│       │       ├── sonner.tsx           # Toaster Sonner com tema integrado
+│       │       ├── spinner.tsx          # Spinner de carregamento
+│       │       ├── table.tsx            # Primitivos de tabela HTML estilizados
+│       │       └── ...                  # Demais primitivos shadcn
+│       ├── contexts/
+│       │   └── AuthContext.tsx          # Contexto React de autenticação
 │       ├── hooks/
-│       │   └── useTodos.ts     # Hooks SWR: useTodos, useTodo, useTodoActions
+│       │   ├── useAuth.ts               # Hook de autenticação (login, register, logout)
+│       │   ├── use-mobile.ts            # Hook de detecção de viewport mobile
+│       │   └── useTodos.ts              # useTodos (paginado), useTodo, useTodoActions
 │       ├── lib/
-│       │   └── utils.ts        # Utilitário cn() (clsx + tailwind-merge)
+│       │   └── utils.ts                 # Utilitário cn() (clsx + tailwind-merge)
 │       ├── services/
-│       │   └── api.ts          # Wrapper fetch para todas as chamadas à API
+│       │   └── api.ts                   # Cliente HTTP centralizado (todos + auth)
 │       └── types/
-│           └── todo.ts         # Tipo TypeScript Todo
+│           └── todo.ts                  # Tipo TypeScript Todo
 │
 └── infra/
-    ├── docker-compose.yml      # MySQL 8 + Adminer
+    ├── docker-compose.yml      # MariaDB LTS + Adminer
     └── seed.sql                # Script de seed do banco (placeholder)
 ```
 
