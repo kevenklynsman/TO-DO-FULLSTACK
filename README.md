@@ -7,6 +7,7 @@ Aplicação fullstack de lista de tarefas (To-Do) em arquitetura monorepo, com b
 ## Índice
 
 - [Visão Geral da Arquitetura](#visão-geral-da-arquitetura)
+- [Diagrama da Aplicação](#diagrama-da-aplicação)
 - [Stack Tecnológica](#stack-tecnológica)
 - [Pré-requisitos](#pré-requisitos)
 - [Estrutura do Projeto](#estrutura-do-projeto)
@@ -43,6 +44,12 @@ Aplicação fullstack de lista de tarefas (To-Do) em arquitetura monorepo, com b
 ```
 
 O **backend** é um servidor Next.js que expõe apenas API Routes (REST). Ele se comunica com o banco MySQL via **Prisma ORM**. O **frontend** é um app Next.js com React 19, consumindo a API do backend via SWR.
+
+---
+
+## Diagrama da Aplicação
+
+![Diagrama da Aplicação](frontend/public/diagrama-todo.jpg)
 
 ---
 
